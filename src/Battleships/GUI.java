@@ -4,13 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 /**
  * Created by dmclark on 24/07/17.
  */
 public class GUI extends Frame {
-    public Button[][] b = new Button[12][12];
-    public Button[][] b2 = new Button[12][12];
+
+    HashMap<Xy, Button> b1 = new HashMap<Xy, Button>();
+    HashMap<Xy, Button> b2 = new HashMap<Xy, Button>();
+
     private GUI_I listeners;
 
     // Constructor to setup Battleships.GUI components and event handlers
@@ -19,16 +22,21 @@ public class GUI extends Frame {
         JFrame frame = new JFrame("p1");
         frame.setLayout(new GridLayout(size, size, size, size));
         frame.setSize(600, 600);
+        frame.setLocationRelativeTo(null);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setVisible(true);
         // "super" Frame sets layout to 3x2 GridLayout, horizontal and verical gaps of 3 pixels
 
         // The components are added from left-to-right, top-to-bottom
         for (int y = size - 1; y >= 0; y--) {
             for (int x = 0; x < size; x++) {
-
-                b[x][y] = (new Button((x + "," + y + ", W")));
-
-                b[x][y].addActionListener(new buttonListener());
-                frame.add(b[x][y]);
+                Xy xy = new Xy(x, y);
+                b1.put(xy, (new Button((x + "," + y + ", W"))));
+                b1.get(xy).setBackground(new Color(0xB8B3FF));
+                b1.get(xy).addActionListener(new buttonListener());
+                frame.add(b1.get(xy));
 
             }
         }
@@ -41,49 +49,61 @@ public class GUI extends Frame {
 
         JFrame frame_2 = new JFrame("Battleships.AI");
         frame_2.setLayout(new GridLayout(size, size, size, size));
-        frame_2.setSize(600, 600);
+
+        frame_2.setLocationRelativeTo(null);
+
+        frame_2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame_2.setVisible(true);
         // "super" Frame sets layout to 3x2 GridLayout, horizontal and verical gaps of 3 pixels
 
         // The components are added from left-to-right, top-to-bottom
         for (int y = size - 1; y >= 0; y--) {
             for (int x = 0; x < size; x++) {
-
-                b2[x][y] = (new Button((x + "," + y + ", W")));
-
-                b2[x][y].setSize(30,30);
-
-                b2[x][y].addActionListener(new buttonListener());
-                frame_2.add(b2[x][y]);
+                Xy xy = new Xy(x, y);
+                b2.put(xy, (new Button((x + "," + y + ", W"))));
+                b2.get(xy).setBackground(new Color(0xB8B3FF));
+                b2.get(xy).addActionListener(new buttonListener());
+                frame_2.add(b2.get(xy));
 
             }
         }
 
 
         //frame_2.setTitle("GridLayout Demo"); // "super" Frame sets title
-        frame_2.setSize(280, 150);           // "super" Frame sets initial size
+        frame_2.setSize(400, 400);
+        frame.setSize(750, 650);// "super" Frame sets initial size
         frame_2.setVisible(true);            // "super" Frame shows
     }
 
-    public void Shot(int x, int y) {
-        listeners.someoneSaid_Shot(x, y);
+    public void Shot(Xy xy) {
+        listeners.someoneSaid_Shot(xy);
     }
 
-    public void edit(int x, int y, char c) {
-        if (c=='X') {
-            b[x][y].setLabel(x + "," + y + ", " + "XXXXX" + "");
-            b[x][y].setForeground(new Color(0xFF0000));
-        }else {
-            b[x][y].setLabel(x + "," + y + ", " + "MMMM" + "");
-            b[x][y].setForeground(new Color(0x0000FF));
+    public void edit(Xy xy, char c) {
+
+
+        if (c == 'X') {
+            b1.get(xy).setLabel(xy.out() + ", " + "XXXXX" + "");
+            // b1.get(xy).setForeground(new Color(0xFF0000));
+            b1.get(xy).setBackground(new Color(0xFF1E21));
+        } else {
+            b1.get(xy).setLabel(xy.out() + ", " + "MMMM" + "");
+            //b1.get(xy).setForeground(new Color(0x0000FF));
+            b1.get(xy).setBackground(new Color(0x5C60FF));
         }
     }
-    public void edit_2(int x, int y, char c) {
-        if (c=='X'){
-            b2[x][y].setLabel(x + "," + y + ", " + "XXXXX" + "");
-            b2[x][y].setForeground(new Color(0xFF0000));
-        }else {
-            b2[x][y].setLabel(x + "," + y + ", " + "MMMM" + "");
-            b2[x][y].setForeground(new Color(0x0000FF));
+
+    public void edit_2(Xy xy, char c) {
+
+        if (c == 'X') {
+            b2.get(xy).setLabel(xy.out() + ", " + "XXXXX" + "");
+            //b2.get(xy).setForeground(new Color(0xFF0000));
+            b2.get(xy).setBackground(new Color(0xFF1E21));
+        } else {
+            b2.get(xy).setLabel(xy.out() + ", " + "MMMM" + "");
+            //b2.get(xy).setForeground(new Color(0x0000FF));
+            b2.get(xy).setBackground(new Color(0x5C60FF));
         }
     }
 
@@ -98,7 +118,7 @@ public class GUI extends Frame {
             int x = Integer.parseInt(l[0]);
             int y = Integer.parseInt(l[1]);
             //System.out.println(x+"hit"+y);
-            Shot(x, y);
+            Shot(new Xy(x, y));
             //JOptionPane.showConfirmDialog(null, (x + "Battleships.Game Over." + y));
         }
     }

@@ -1,6 +1,7 @@
 package Battleships;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by dmclark on 23/07/17.
@@ -10,8 +11,8 @@ import java.util.ArrayList;
 public class Board {
 
     int size;
-    char[][] board;
-
+    //char[][] board;
+    HashMap<Xy, Character> board = new HashMap<Xy, Character>();
     int n_patrol_boat;
     int n_battleships;
     int n_submarine;
@@ -25,7 +26,7 @@ public class Board {
     int carrier = 5;
     int num_ships = 0;
     ArrayList<Ship> ships = new ArrayList<Ship>();
-    ArrayList<Character> shi = new ArrayList<Character>();
+
     //
     // empte w
     // miss x
@@ -38,10 +39,10 @@ public class Board {
 
     public Board(int size) {
         this.size = size;
-        board = new char[size][size];
+
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                board[x][y] = 'w';
+                board.put(new Xy(x, y), new Character('w'));
             }
         }
 
@@ -54,44 +55,37 @@ public class Board {
         this.n_submarine = submarine;
         this.n_destroyer = destroyer;
         this.n_carrier = carrier;
-        for (int i = 0; i < patrol_boat; i++) {
-            shi.add('p');
-        }
-        for (int i = 0; i < battleships; i++) {
-            shi.add('b');
-        }
-        for (int i = 0; i < submarine; i++) {
-            shi.add('s');
-        }
-        for (int i = 0; i < destroyer; i++) {
-            shi.add('d');
-        }
-        for (int i = 0; i < carrier; i++) {
-            shi.add('c');
-        }
-        board = new char[size][size];
+
+
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                board[x][y] = 'w';
+                board.put(new Xy(x, y), new Character('w'));
             }
         }
     }
 
-    public boolean take_Shot(int x, int y) {
+    public boolean take_Shot(Xy xy) {
 
 
-        if (board[x][y] == 'w' || board[x][y] == 'x') {
-            board[x][y] = 'x';
+        if (board.get(xy) == 'w' || board.get(xy) == 'x') {
+            board.replace(xy, 'x');
             return false;
         } else {
             boolean f = false;
             int i = 0;
             while (!f) {
-                f = ships.get(i).hit(x, y);
+                if (i == ships.size()) {
+                    return false;
+                }
+                f = ships.get(i).hit(xy);
+                //System.out.println(ships.size()+" : "+i+f);
                 if (f) {
-                    board[x][y] = Character.toUpperCase(ships.get(i).getType());
+                    board.replace(xy, Character.toUpperCase(ships.get(i).getType()));
+                    System.out.println(ships.size() + " : " + i + f);
                 }
                 i++;
+
+
             }
 
 
@@ -122,8 +116,9 @@ public class Board {
             if (ships.get(i).is_Alive_()) {
                 l++;
             } else {
+                char car = ships.get(i).getType();
                 ships.remove(i);
-                return shi.get(i);
+                return car;
             }
 
         }
@@ -172,7 +167,9 @@ public class Board {
         return 0;
     }
 
-    public boolean add_next_Boat(int x, int y, int d) {
+    public boolean add_next_Boat(Xy xy, int d) {
+        int x = xy.getX();
+        int y = xy.getY();
         int l = 2;
         char type = 'w';
         int xd = 0;
@@ -208,11 +205,11 @@ public class Board {
             l = carrier;
             type = 'c';
         }
-        System.out.println(can_plas(l, x, y, xd, yd));
-        if (can_plas(l, x, y, xd, yd)) {
+        //System.out.println(can_plas(l, xy, xd, yd));
+        if (can_plas(l, xy, xd, yd)) {
             if (type == 'p') {
                 n_patrol_boat--;
-                System.out.println("#########");
+                //System.out.println("#########");
             } else if (type == 'b') {
                 n_battleships--;
 
@@ -226,23 +223,25 @@ public class Board {
                 n_carrier--;
             }
 
-            return plas(type, l, x, y, xd, yd);
+            return plas(type, l, xy, xd, yd);
         }
         return false;
     }
 
 
-    public boolean if_empte(int x, int y) {
-        if (board[x][y] == 'w') {
+    public boolean if_empte(Xy xy) {
+
+        if (board.get(xy) == 'w') {
             return true;
         }
         return false;
     }
 
-    public boolean can_plas(int l, int x, int y, int xd, int yd) {
-
+    public boolean can_plas(int l, Xy xy, int xd, int yd) {
+        int x = xy.getX();
+        int y = xy.getY();
         for (int i = 0; i < l; i++) {
-            if (!if_empte(x, y)) {
+            if (!if_empte(new Xy(x, y))) {
                 return false;
             } else {
                 y = y + yd;
@@ -252,19 +251,22 @@ public class Board {
         return true;
     }
 
-    public boolean plas(char type, int l, int x, int y, int xd, int yd) {
+    public boolean plas(char type, int l, Xy xy, int xd, int yd) {
+
+
         Ship s = new Ship(type);
         for (int i = 0; i < l; i++) {
-            board[x][y] = type;
-            s.add(x, y);
-            y = y + yd;
-            x = x + xd;
+            board.replace(xy, type);
+            s.add(xy);
+            xy.add_XY(xd, yd);
+
+
         }
         ships.add(s);
         return true;
     }
 
-    public boolean add_boat(char type, int x, int y, int d) {
+    public boolean add_boat(char type, Xy xy, int d) {
         int xd = 0;
         int yd = 0;
         int l = 1;
@@ -298,8 +300,8 @@ public class Board {
             l = carrier;
         }
 
-        if (can_plas(l, x, y, xd, yd)) {
-            plas(type, l, x, y, xd, yd);
+        if (can_plas(l, xy, xd, yd)) {
+            plas(type, l, xy, xd, yd);
             return true;
         }
         return false;
@@ -319,6 +321,7 @@ public class Board {
             temp = temp + x + "  ";
         }
         temp = temp + "\n";
+        Xy xy = new Xy(0, 0);
         for (int y = size - 1; y >= 0; y--) {
             if (y > 9) {
                 temp = temp + y + " ";
@@ -327,7 +330,8 @@ public class Board {
             }
 
             for (int x = 0; x < size; x++) {
-                temp = temp + "  " + board[x][y];
+                xy.set(x, y);
+                temp = temp + "  " + board.get(xy);
             }
             temp = temp + "\n";
         }
@@ -341,12 +345,14 @@ public class Board {
         } else {
             temp = "  ";
         }
-
+        Xy xy = new Xy(0, 0);
+        Character car;
         for (int x = 0; x < size; x++) {
             temp = temp + x + "  ";
         }
         temp = temp + "\n";
         for (int y = size - 1; y >= 0; y--) {
+
             if (y > 9) {
                 temp = temp + y + " ";
             } else {
@@ -354,29 +360,31 @@ public class Board {
             }
 
             for (int x = 0; x < size; x++) {
-                if (board[x][y] == 'w') {
+                xy.set(x, y);
+                car = board.get(xy);
+                if (car == 'w') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 'x') {
+                } else if (car == 'x') {
                     temp = temp + " " + 'x';
-                } else if (board[x][y] == 'p') {
+                } else if (car == 'p') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 'b') {
+                } else if (car == 'b') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 's') {
+                } else if (car == 's') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 'd') {
+                } else if (car == 'd') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 'c') {
+                } else if (car == 'c') {
                     temp = temp + " " + 'w';
-                } else if (board[x][y] == 'P') {
+                } else if (car == 'P') {
                     temp = temp + " " + 'x';
-                } else if (board[x][y] == 'B') {
+                } else if (car == 'B') {
                     temp = temp + " " + 'x';
-                } else if (board[x][y] == 'S') {
+                } else if (car == 'S') {
                     temp = temp + " " + 'x';
-                } else if (board[x][y] == 'D') {
+                } else if (car == 'D') {
                     temp = temp + " " + 'x';
-                } else if (board[x][y] == 'C') {
+                } else if (car == 'C') {
                     temp = temp + " " + 'x';
                 }
 

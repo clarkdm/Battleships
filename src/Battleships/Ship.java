@@ -1,5 +1,6 @@
 package Battleships;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -8,8 +9,8 @@ import java.util.Arrays;
 public class Ship {
 
     int health = 0;
-    int positions_x[] = {-1, -1, -1, -1, -1};
-    int positions_y[] = {-1, -1, -1, -1, -1};
+    ArrayList<Xy> positions = new ArrayList<Xy>();
+
     char type;
 
     int patrol_boat = 2;
@@ -26,15 +27,13 @@ public class Ship {
 
     }
 
-    public boolean add(int x, int y) {
-        positions_x[health] = x;
-        positions_y[health] = y;
-        health = health + 1;
+    public boolean add(Xy xy) {
+        positions.add(new Xy(xy.getX(), xy.getY()));
         return true;
     }
 
     public boolean is_Alive_() {
-        if (health > 0) {
+        if (!positions.isEmpty()) {
             return true;
         }
         return false;
@@ -44,15 +43,13 @@ public class Ship {
         return type;
     }
 
-    public boolean hit(int x, int y) {
-        for (int i = 0; i < positions_x.length; i++) {
-            if (positions_x[i] == x) {
-                if (positions_y[i] == y) {
-                    positions_y[i] = -1;
-                    positions_x[i] = -1;
-                    health = health - 1;
-                    return true;
-                }
+    public boolean hit(Xy xy) {
+        for (int i = 0; i < positions.size(); i++) {
+            if (positions.get(i).equals(xy)) {
+                positions.remove(i);
+
+                return true;
+
             }
         }
         return false;
@@ -62,8 +59,7 @@ public class Ship {
     public String toString() {
         return "Battleships.Ship{" +
                 "health=" + health +
-                ", positions_x=" + Arrays.toString(positions_x) +
-                ", positions_y=" + Arrays.toString(positions_y) +
+                ", positions_x=" + positions +
                 ", type=" + type +
                 '}';
     }

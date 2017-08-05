@@ -8,9 +8,11 @@ import java.util.ArrayList;
 public class AI {
 
     ArrayList<ArrayList> l_x = new ArrayList<>();
+    ArrayList<Xy> next = new ArrayList<Xy>();
     int b_s = 0;
     private int y;
     private int x;
+    Xy last = null;
 
     public AI(int size) {
         b_s = size;
@@ -24,6 +26,10 @@ public class AI {
 
         }
 
+    }
+
+    public Xy getLast() {
+        return last;
     }
 
     public void add_Boats(Board b2) {
@@ -50,7 +56,7 @@ public class AI {
 
             }
             System.out.println(x + " " + y + " " + d + " ~ " + b2.get_next_Boat());
-            System.out.println(b2.add_next_Boat(x, y, d));
+            System.out.println(b2.add_next_Boat(new Xy(x, y), d));
             b = b2.get_next_Boat();
         }
         System.out.println(b2);
@@ -103,13 +109,26 @@ public class AI {
     }
 
     public boolean take_New_Shot(Board b1) {
-        while (true) {
-             x = (int) (Math.random() * b_s);
-             y = (int) (Math.random() * b_s);
+        boolean r;
+        if (next.isEmpty()) {
+            while (true) {
+                x = (int) (Math.random() * b_s);
+                y = (int) (Math.random() * b_s);
+                //System.out.println(l_x.get(x).get(y));
+                if ((Boolean) l_x.get(x).get(y)) {
+                    l_x.get(x).set(y, false);
+                    last = new Xy(x, y);
 
-            if ((Boolean) l_x.get(x).get(y)) {
-                return b1.take_Shot(x, y);
+                    r = b1.take_Shot(last);
+                    return r;
+                }
             }
+        } else {
+
+
+            r = b1.take_Shot(new Xy(x, y));
         }
+        return r;
+
     }
 }

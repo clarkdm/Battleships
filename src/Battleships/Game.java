@@ -14,7 +14,7 @@ public class Game implements GUI_I {
     int size;
     //   public int patrol_boat = 2;
 //    int battleships = 2;
-//    int submarine = 1;
+//    int submarine = 1;f
 //    int destroyer = 1;
 //    int carrier = 1;
     public int patrol_boat = 2;
@@ -36,10 +36,13 @@ public class Game implements GUI_I {
         start = true;
         t = true;
         ai.add_Boats(b2);
-        System.out.println("P1#################################");
+        // System.out.println("P1#################################");
         ai.add_Boats(b1);
-//        add_Boats(b1);
-//
+
+        System.out.println("hi" + b1);
+        System.out.println(b2);
+        add_Boats(b1);
+
 //        while (start) {
 //            if (t) {
 //                System.out.println("P1");
@@ -50,12 +53,11 @@ public class Game implements GUI_I {
 //                t = !t;
 //            } else {
 //                System.out.println("P2");
-//                //ai.take_Shot(b1);
+//                ai.take_Shot(b1);
 //
 //                start = b1.is_Alive();
 //                t = !t;
 //            }
-////
 //
 //        }
 //        System.out.println("GAME OVER");
@@ -107,7 +109,7 @@ public class Game implements GUI_I {
             int y = sc.nextInt();
             System.out.println("D");
             int d = sc.nextInt();
-            boolean i = b.add_next_Boat(x, y, d);
+            boolean i = b.add_next_Boat(new Xy(x, y), d);
 
 
             if (!i) {
@@ -133,7 +135,7 @@ public class Game implements GUI_I {
             System.out.println("y");
             int y = sc.nextInt();
 
-            i = b.take_Shot(x, y);
+            i = b.take_Shot(new Xy(x, y));
 
             if (!i) {
                 System.out.println("miss");
@@ -158,44 +160,45 @@ public class Game implements GUI_I {
     }
 
     @Override
-    public void someoneSaid_Shot(int x, int y) {
+    public void someoneSaid_Shot(Xy xy) {
         if (t) {
             Board b;
 //            if (t) {
-                b = b1;
+            b = b1;
 //            } else {
 //                b = b2;
 //            }
 
-            boolean i = b.take_Shot(x, y);
+            boolean i = b.take_Shot(xy);
 
             if (!i) {
-                System.out.println("miss");
-                gui.edit(x, y, 'M');
+//                System.out.println("miss");
+                gui.edit(xy, 'M');
 
             } else {
-                System.out.println("hit");
+//                System.out.println("hit");
                 // System.out.println(b.toString());
-                gui.edit(x, y, 'X');
+                gui.edit(xy, 'X');
                 if (!b.is_Alive()) {
                     i = false;
                 }
             }
+
             boolean i_2 = ai.take_New_Shot(b2);
             if (!i_2) {
-                System.out.println("miss");
-                gui.edit_2(ai.getX(), ai.getY(), 'M');
+                //System.out.println("miss");
+                gui.edit_2(ai.getLast(), 'M');
 
             } else {
-                System.out.println("hit");
+                //System.out.println("hit");
                 // System.out.println(b.toString());
-                gui.edit_2(ai.getX(), ai.getY(), 'X');
+                gui.edit_2(ai.getLast(), 'X');
                 if (!b.is_Alive()) {
                     i_2 = false;
                 }
             }
-            System.out.println(b1);
-            System.out.println(b2);
+//            System.out.println(b1);
+//            System.out.println(b2);
         }
 
 
